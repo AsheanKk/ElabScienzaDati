@@ -4,8 +4,14 @@ output:
   html_document:
     theme: readable
 ---
+```{r setup, include=FALSE}
 
-
+knit: (function(input_file, encoding) {
+  out_dir <- 'docs';
+  rmarkdown::render(input_file,
+ encoding=encoding,
+ output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
+ ```
 
 **Il cibo climatico** nel seguente progetto procederemo con l'anilisi di dati raccorti sul consumo di carne,
 l'inquinamento e la sanità, quanto quel che mangiamo affligge la nostra salute e quella del nostro pianeta? 
