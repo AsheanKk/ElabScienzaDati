@@ -7,7 +7,7 @@ output:
 ---
 
 
-**Il cibo climatico** nel seguente progetto procederemo con l'anilisi di dati raccorti sul consumo di carne,
+**Il cibo climatico** nel seguente progetto procederemo con l'analisi di dati raccolti sul consumo di carne,
 l'inquinamento e la sanità, quanto quel che mangiamo affligge la nostra salute e quella del nostro pianeta? 
 
 **I dataset usati:**
@@ -17,20 +17,21 @@ l'inquinamento e la sanità, quanto quel che mangiamo affligge la nostra salute 
 3. "[Greenhouse gas emissions](https://github.com/owid/co2-data/blob/master/owid-co2-data.csv)". 
 
 **Domande iniziali**
-Partiamo con una paio di domande semplici:
+Partiamo con un paio di domande semplici:
 
-  1.quanta carne mangiamo nelle varie nazioni?
+  1. quanta carne mangiamo nelle varie nazioni?
   (grafico nazioni x consumo di carne)
   
-  2.Quando abbiamo cominciato a mangiare questa quantità di carne?
+  2. Quando abbiamo cominciato a mangiare questa quantità di carne?
   (grafito crescita consumi in occidente)
-  3.I paesi del terzo mondo hanno incominciato più tardi a consumare carne, coincide con la crescita economica del        paese?
   
-  4.Quali sono i paesi con maggiori emissioni, quante di queste emisisoni sono dovuti agli allevamenti?
+  3. I paesi del terzo mondo hanno incominciato più tardi a consumare carne, coincide con la crescita economica del        paese?
   
-  5.Quali sono i paesi con maggiori problemi di obesità ed con più decessi per colestorolo alto?
+  4. Quali sono i paesi con maggiori emissioni, quante di queste emisisoni sono dovuti agli allevamenti?
   
-  6.Quanto costano alle varie nazioni?
+  5. Quali sono i paesi con maggiori problemi di obesità ed con più decessi per colestorolo alto?
+  
+  6. Quanto costano alle varie nazioni?
   
   
   
