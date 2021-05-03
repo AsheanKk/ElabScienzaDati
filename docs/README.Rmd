@@ -1,5 +1,6 @@
 ---
-title: "Progetto Elaborazione dati"
+title: "Progetto Elaborazione Scienza Dati"
+subtitle: "di Ashean Abeysinghe"
 output:
   html_document:
     theme: readable
