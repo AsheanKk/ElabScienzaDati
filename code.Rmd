@@ -1,0 +1,60 @@
+---
+title: "Code_elab"
+author: "AsheanAbeysinghe"
+date: "8/5/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Accumulazione dei dati
+
+Cominciamo le nostre analisi raccolgiendo i dati, importiamo i dati dai file csv in dei dataset
+
+
+
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+
+consumi_carne_dt = read_csv("meat_consumption_worldwide.csv")
+consumi_carne_dt
+
+prezzi_carne_dt = read_csv("Meat_prices.csv")
+prezzi_carne_dt
+
+emissioni_gaserra_dt = read_csv("owid-co2-data.csv")
+emissioni_gaserra_dt
+
+```
+
+
+## Ordinamento dei dati
+
+Una volta preparati i vari dataset possiamo procedere con un ordinamento generale dei dati, notiamo però che 
+generalmente i dataset usati sono già ordinati, consistenti ed uniformi.
+
+##Quanta carne manfiamo nelle varie nazioni?
+Creaimo un dataset da dataset met_consumption_worldwide mettento in rapporto la colonna relativa alla nazione, al consumo di carne e l' anno 2020.
+
+
+```{r pressure, echo=FALSE}
+
+
+
+consumi_manzo_2020 = consumi_carne_dt %>%
+  filter( TIME == 2020 )
+
+media_consumi_manzo =  mean(dplyr::pull(consumi_manzo_2020, Value))
+
+consumi_manzo_magg_2020 = consumi_manzo_2020 %>%
+  filter (Value > media_consumi_manzo)
+
+ggplot(data = consumi_manzo_magg_2020) +
+  geom_point(mapping = aes(x = LOCATION, y = Value, color= SUBJECT))
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
