@@ -20,8 +20,6 @@ library(readr)
 library(dplyr)
 library(ggplot2)
 
-consumi_carne_dt = read_csv("meat_consumption_worldwide.csv")
-consumi_carne_dt
 
 prezzi_carne_dt = read_csv("Meat_prices.csv")
 prezzi_carne_dt
@@ -29,6 +27,8 @@ prezzi_carne_dt
 emissioni_gaserra_dt = read_csv("owid-co2-data.csv")
 emissioni_gaserra_dt
 
+Food_America_Organization_dt = read_csv("FAO.csv")
+Food_America_Organization_dt
 ```
 
 
@@ -40,21 +40,111 @@ generalmente i dataset usati sono già ordinati, consistenti ed uniformi.
 ##Quanta carne manfiamo nelle varie nazioni?
 Creaimo un dataset da dataset met_consumption_worldwide mettento in rapporto la colonna relativa alla nazione, al consumo di carne e l' anno 2020.
 
+<!-- # -->
+<!-- #```{r pressure, echo=FALSE} -->
 
-```{r pressure, echo=FALSE}
+
+<!-- #consumi_manzo_2020 = consumi_carne_dt %>% -->
+<!-- #  filter( TIME == 2020 , SUBJECT == "BEEF") -->
+<!-- # -->
+<!-- #media_consumi_manzo =  mean(dplyr::pull(consumi_manzo_2020, Value)) -->
+<!-- # -->
+<!-- #consumi_manzo_magg_2020 = consumi_manzo_2020 %>% -->
+<!-- #  filter (Value > media_consumi_manzo) -->
 
 
+<!--   ggplot(data = consumi_manzo_magg_2020, aes(x=LOCATION, y=Value, color=SUBJECT)) + -->
+<!--   geom_bar(stat="identity") -->
+<!-- ``` -->
+<!-- ```{r pressure, echo=FALSE} -->
 
-consumi_manzo_2020 = consumi_carne_dt %>%
-  filter( TIME == 2020 )
 
-media_consumi_manzo =  mean(dplyr::pull(consumi_manzo_2020, Value))
+<!-- consumi_ovina_2020 = consumi_carne_dt %>% -->
+<!--   filter( TIME == 2020 , SUBJECT == "SHEEP") -->
 
-consumi_manzo_magg_2020 = consumi_manzo_2020 %>%
-  filter (Value > media_consumi_manzo)
+<!-- media_consumi_ovini =  mean(dplyr::pull(consumi_ovina_2020, Value)) -->
 
-ggplot(data = consumi_manzo_magg_2020) +
-  geom_point(mapping = aes(x = LOCATION, y = Value, color= SUBJECT))
+<!-- consumi_ovini_magg_2020 = consumi_ovina_2020 %>% -->
+<!--   filter (Value > media_consumi_ovini) -->
+
+<!-- ggplot(data = consumi_ovini_magg_2020, aes(x=LOCATION, y=Value, color=SUBJECT)) + -->
+<!--   geom_bar(stat="identity") -->
+<!-- ``` -->
+<!-- ```{r pressure, echo=FALSE} -->
+
+
+<!-- consumi_pollame_2020 = consumi_carne_dt %>% -->
+<!--   filter( TIME == 2020 , SUBJECT == "POULTRY") -->
+
+<!-- media_consumi_pollame =  mean(dplyr::pull(consumi_pollame_2020, Value)) -->
+
+<!-- consumi_pollame_magg_2020 = consumi_pollame_2020 %>% -->
+<!--   filter (Value > media_consumi_pollame) -->
+
+<!-- ggplot(data = consumi_pollame_magg_2020, aes(x=LOCATION, y=Value, color=SUBJECT)) + -->
+<!--   geom_bar(stat="identity") -->
+<!-- ``` -->
+
+Nel database fornito da FAO posso otterene quasi tutti i dati necessari per effettuare il progetto, 
+partendo da qualcosa di semplice calcoliamo il quantitativo di carne prodotta a livello mondiale nel passare degli anni
+
+i codici dei prodotti interessati sono (item code): 
+
+ Manzo : 2731
+ Carne Ovina : 2732
+ Carne Suina : 2733
+ Pollame : 2734
+ altre carni : 2735
+ 
+ 
+ Ed il campo relativo alle quantità che ci interessa relativo all' anno, dovremmo infatti sommare tutti i valori
+ di Y1961 con i codici precedenti.
+ 
+```{r}
+ 
+ consumi_totali_carni = Food_America_Organization_dt %>%
+                        select("Item Code", starts_with("Y"))  %>% 
+                        filter(`Item Code` %in% c("2731","2732","2733","2734","2735")) %>%
+                        arrange(desc(`Item Code`)) 
+                       
+
+
+  consumi_totali_carni <- consumi_totali_carni[complete.cases(consumi_totali_carni), ]
+ 
+ 
+ 
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+A tal punto creo un vettore con i nomi di tutte le colonne 
+
+```{r}
+
+col_name = colnames(consumi_totali_carni)[-c(1)]
+item_name = c("2731","2732","2733","2734","2735")
+max_cons = matrix (nrow = length(col_name), ncol = length(item_name), byrow = T)
+
+#Consumi massimi mondiali per l'item 2731
+
+      
+for(i in 1:length(item_name)){
+ for(j in 1: length(col_name)){
+        
+         max_cons[j-1][i] = sum( filter(consumi_totali_carni, `Item Code` == item_name[i])[,j], na.rm = T)
+                      
+        }
+ 
+}
+ max_meat.df <- as.data.frame(t(max_cons))
+ names(max_meat.df)<-col_name
+ 
+ max_meat.df
+
+```
+
+
+
+
+Provo dunque a mettere a confronto tutti i dati su un unico grafico, immaginiamo di sommare tutti i valori 
+e vederli in modo simile ai grafici precedenti.
+
+
