@@ -105,44 +105,84 @@ i codici dei prodotti interessati sono (item code):
  consumi_totali_carni = Food_America_Organization_dt %>%
                         select("Item Code", starts_with("Y"))  %>% 
                         filter(`Item Code` %in% c("2731","2732","2733","2734","2735")) %>%
-                        arrange(desc(`Item Code`)) 
-                       
+                       # replace(NA,0) %>%
+                        #mutate(val_sum = colSums(consumi_totali_carni[,-1])) %>%
+                        group_by("Item Code") 
+  
 
+consumi_totali_carni[complete.cases(consumi_totali_carni), ] %>%
+                       summarize_if(is.numeric, sum, na.rm = TRUE)
 
-  consumi_totali_carni <- consumi_totali_carni[complete.cases(consumi_totali_carni), ]
+consumi_totali_carni
+
+#
+                        #aggregate(consumi_totali_carni[-1], consumi_totali_carni["Item Code"], sum, na.rm=TRUE)
+ 
+ 
  
  
  
 ```
 
-A tal punto creo un vettore con i nomi di tutte le colonne 
+
+**Procediamo dunque con uno studio per ogni codice**
+
+Dichiariamo una funzione che ritorni un grafico geompoint in base al codice del prodotto 
+
 
 ```{r}
 
-col_name = colnames(consumi_totali_carni)[-c(1)]
-item_name = c("2731","2732","2733","2734","2735")
-max_cons = matrix (nrow = length(col_name), ncol = length(item_name), byrow = T)
+consumi_mondiali<-function(code, title){
+  consumi_totali = consumi_totali_carni%>%
+  filter(`Item Code` == code)%>%
+   summarize_if(is.numeric, sum, na.rm = TRUE)
 
-#Consumi massimi mondiali per l'item 2731
 
-      
-for(i in 1:length(item_name)){
- for(j in 1: length(col_name)){
-        
-         max_cons[j-1][i] = sum( filter(consumi_totali_carni, `Item Code` == item_name[i])[,j], na.rm = T)
-                      
-        }
- 
+consumi_totali
+  
+somma = as.numeric(consumi_totali[,-1], fixed = TRUE, na.rm = T)
+anni = as.numeric( sub("Y", "", (colnames(consumi_totali))[-(1)], fixed = TRUE))
+
+new_obj_for_tot = data.frame(anni,somma)[-1,]
+
+# 
+  ggplot(data = new_obj_for_tot)+
+    geom_point(mapping = aes(x =anni, y = somma))+
+    ggtitle(title)
 }
- max_meat.df <- as.data.frame(t(max_cons))
- names(max_meat.df)<-col_name
- 
- max_meat.df
 
+  
+  
+  # ggplot(data=new_obj_for_manzo + 
+  # geom_hisgram(aes(x = anni, y =somma))
+  
+  # ggplot(new_obj_for_manzo, aes(anni, somma))+
+  # geom_point(alpha = 1/10)+
+  # coord_cartesian(ylim = c(min(somma),max(somma)))
+  #   
+               
 ```
 
-
-
+**Consumo mondiale di manzo**
+```{r}
+consumi_mondiali("2731","Consumi Mondiali di Manzo")
+```
+**Consumo mondiale di carne ovina**
+```{r}
+consumi_mondiali("2732","Consumi Mondiali di Carne Ovina")
+```
+**Consumo mondiale di Carne Suina**
+```{r}
+consumi_mondiali("2733","Consumi Mondiali di Carne Suina")
+```
+**Consumo mondiale di pollame**
+```{r}
+consumi_mondiali("2734","Consumi Mondiali di Pollame")
+```
+**Consumo mondiale di Carni**
+```{r}
+consumi_mondiali("2735","Consumi Mondiali di Carni")
+```
 
 Provo dunque a mettere a confronto tutti i dati su un unico grafico, immaginiamo di sommare tutti i valori 
 e vederli in modo simile ai grafici precedenti.
