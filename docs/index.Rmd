@@ -37,7 +37,7 @@ Partiamo con un paio di domande semplici:
   
   
 
-SQL is a declarative language: it allows you to specify *what* to retrieve without saying *how*. When a query is executed by the query processor, it is translated into a procedural language that specifies how to access the data. There are generally more than one possible translations of an SQL query into the procedural language. The task of the query optimizer is to choose the most efficient execution plan.
+Studiamo i consumi delle seguenti carni .
 
 [SQLite](https://www.sqlite.org/index.html) is a C-language library that implements a small, fast, self-contained, high-reliability, full-featured, SQL database engine. SQLite it a good choice for data analysis:
 
