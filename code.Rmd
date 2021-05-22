@@ -30,6 +30,9 @@ emissioni_gaserra_dt
 
 Food_America_Organization_dt = read_csv("FAO.csv")
 Food_America_Organization_dt
+
+MPDW_6018_dt = read_csv("migration_population.csv")
+MPDW_6018_dt
 ```
 
 
@@ -104,7 +107,7 @@ i codici dei prodotti interessati sono (item code):
 ```{r}
  
  consumi_totali_carni = Food_America_Organization_dt %>%
-                        select("Item Code", starts_with("Y"))  %>% 
+                        select("Item","Item Code", starts_with("Y"))  %>% 
                         filter(`Item Code` %in% c("2731","2732","2733","2734","2735"))
                        # replace(NA,0) %>%
                         #mutate(val_sum = colSums(consumi_totali_carni[,-1])) %>%
@@ -149,7 +152,8 @@ new_obj_for_tot = data.frame(anni,somma)[-1,]
 
 # 
   ggplot(data = new_obj_for_tot)+
-    geom_point(mapping = aes(x =anni, y = somma))+
+    geom_point(mapping = aes(x =anni, y = somma, colour = code))+
+    geom_line(aes(x = anni, y = somma, colour = code))+
     ggtitle(title)
     
 }
@@ -193,13 +197,50 @@ e vederli in modo simile ai grafici precedenti.
 
 ```{r}
 
-consumi_totali_2 =  pivot_longer(data= consumi_totali_carni, cols = starts_with("Y"),  names_to = "year",
+andamenti_compless_carni =  
+  
+  pivot_longer(data = consumi_totali_carni, cols = starts_with("Y"),  names_to = "year",
    values_to = "values",
-   values_drop_na = TRUE) 
-  ##mutate()
+   values_drop_na = TRUE)%>% 
+   mutate(year = as.numeric( sub("Y", "", year, fixed = TRUE)))%>%
+  group_by(Item,`Item Code`, year)%>%
+   summarize_if(is.numeric, sum, na.rm = TRUE)
+ 
 
-ggplot(data = consumi_totali_2, aes(x = year, y = values, group = "Item Code"))+
-  geom_line()+
-  geom_point()
+ggplot(data = andamenti_compless_carni)+
+  geom_line(aes(x = year, y = values, group = `Item Code`,  colour = `Item`), size = 1)+
+  geom_point(aes(x = year, y = values, group = `Item Code`, colour = `Item`), size = 1.5)
 
 ```
+
+Mettiamo a confronto la crescita della popolazione mondiale ed il relativo consumo di carne, iniziamo dunque col prendere i dati da MPDW
+
+```{r}
+crescita_pop =  MPDW_6018_dt %>%
+  select("country", "year","population")%>%
+  group_by(year) %>%
+  summarize_if(is.numeric, sum, na.rm = TRUE)
+
+
+
+ggplot(data = crescita_pop)+
+  geom_line(aes(x = year, y = population, colour = "Popolazione Mondiale"), size = 1)+
+  geom_point(aes(x = year, y = population,  colour = "Popolazione Mondiale"), size = 1.5)
+```
+
+
+
+Mettiamo a confronto la crescita della popolazione con la crescita dei consumi di carne
+```{r}
+
+rapp_cons_pop<- merge(crescita_pop, andamenti_compless_carni, by = "year")%>%
+  mutate(rapp = values/population)
+
+ggplot(data = rapp_cons_pop)+
+ # geom_line(aes(x = year, y = values, group = `Item Code`,  colour = `Item`), size = 1)+
+  geom_line(aes(x = year, y = rapp,  group = `Item Code`,  colour = `Item`), size = 1)
+  
+
+```
+
+
