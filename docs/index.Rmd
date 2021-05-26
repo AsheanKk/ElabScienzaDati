@@ -24,15 +24,16 @@ Partiamo con un paio di domande semplici:
   (grafico nazioni x consumo di carne)
   
   2. Quando abbiamo cominciato a mangiare questa quantità di carne?
-  (grafito crescita consumi in occidente)
   
-  3. I paesi del terzo mondo hanno incominciato più tardi a consumare carne, coincide con la crescita economica del paese?
+  3. I paesi del terzo mondo hanno incominciato più tardi a consumare carne, coincide con la crescita economica del paese7
+   
+  4. La crescita del consumo di carne è cresciuto in rapporto alla popolazione? 
   
-  4. Quali sono i paesi con maggiori emissioni, quante di queste emisisoni sono dovuti agli allevamenti?
+  5. Quali sono i paesi con maggiori emissioni, quante di queste emisisoni sono dovuti agli allevamenti?
   
-  5. Quali sono i paesi con maggiori problemi di obesità ed con più decessi per colestorolo alto?
+  6. Quali sono i paesi con maggiori problemi di obesità ed con più decessi per colestorolo alto?
   
-  6. Quanto costano alle varie nazioni?
+  7. Quanto costano alle varie nazioni?
   
   
   
@@ -48,11 +49,22 @@ Nei seguenti grafici vederemo l' andamento del consumo delle carni più comuni d
 ![Consumi di pollame](imgs/consumi_pollame_mondiali_grph.png)
 ![Consumi di altre carni](imgs/consumi_altre_carni_mondiali_grph.png)
 
-
 Notiamo in tutti i grafici il cosumo di carne è aumentato in modo sensibile in tutto il mondo. 
-**Ma in rapporto alla popolazione cosa possiamo dire?**
+** Quando abbiamo cominciato a mangiare questa quantità di carne?**
 
 ![Andamento dei consumi di carne](imgs/andamento_compl_carni_grph.png)
+**quanta carne mangiamo nelle varie nazioni?
+  (grafico nazioni x consumo di carne)**
+  Dai precedenti grafici abbiamo visto la crescita dei consumi di carne a livello globale, proviamo a visualizzare quali sono effettivamente i   paesi che oggi giorno consumano più carne
+  
+  ![Mappa dei consumi di carni - Globe](imgs/cons_carn_world.png)
+
+**La crescita del consumo di carne è cresciuto in rapporto alla popolazione? **
+
 ![Consumi in rapposto alla popolazione](imgs/rapp_cons_pop_grph.png)
 
 >Vediamo che il rapporto tra la popolazione mondiale di alcune carni come quella ovina sono rimaste più o meno costani, inaspettatamente anche **il rapporto tra manzo e poplazione è rimasta più o meno costante**, mentre il consumo di **carne suina e pollame ha tenuto un andamento crescente**.
+
+
+Notiamo in tutti i grafici il cosumo di carne è aumentato in modo sensibile in tutto il mondo. 
+

@@ -21,6 +21,8 @@ library(dplyr)
 library(ggplot2)
 library(ggpubr)
 library(tidyr)
+theme_set(theme_bw())
+library("sf")
 
 prezzi_carne_dt = read_csv("Meat_prices.csv")
 prezzi_carne_dt
@@ -107,12 +109,13 @@ i codici dei prodotti interessati sono (item code):
 ```{r}
  
  consumi_totali_carni = Food_America_Organization_dt %>%
-                        select("Item","Item Code", starts_with("Y"))  %>% 
+                        select(`Area Abbreviation`,"Item","Item Code", starts_with("Y"))  %>% 
+                        rename(  "iso_a3" =`Area Abbreviation`) %>%
                         filter(`Item Code` %in% c("2731","2732","2733","2734","2735"))
                        # replace(NA,0) %>%
                         #mutate(val_sum = colSums(consumi_totali_carni[,-1])) %>%
                         
-                       
+                
   
 
 consumi_totali_carni[complete.cases(consumi_totali_carni), ] %>%
@@ -228,6 +231,51 @@ ggplot(data = crescita_pop)+
   geom_point(aes(x = year, y = population,  colour = "Popolazione Mondiale"), size = 1.5)
 ```
 
+
+Mappa con i consumi di carne globali
+```{r}
+library("rnaturalearth")
+library("rnaturalearthdata")
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+world
+
+andamenti_compless_carni_per_nazione =  
+  
+  pivot_longer(data = consumi_totali_carni, cols = starts_with("Y"),  names_to = "year",
+   values_to = "values",
+   values_drop_na = TRUE)%>% 
+   mutate(year = as.numeric( sub("Y", "", year, fixed = TRUE)))%>%
+  group_by(iso_a3,Item,`Item Code`)%>%
+    filter(year == "2013")%>%
+    group_by(iso_a3)%>%
+   summarize_if(is.numeric, sum, na.rm = TRUE)##%>%
+##  select(`Area Abbreviation`)
+ 
+
+andamenti_compless_carni_per_nazione
+
+##Abbiamo l' oggetto world dobbiamo fare un merge da i datset
+# world e consumi di carne usando 
+# 
+# Prima però dobbiamo creare un dataset che ha la somma di tutti i consumi di carne dell' ultimo anno per ogni nazione
+
+
+ggplot(data = world) +
+    geom_sf(aes(fill = pop_est)) +
+    scale_fill_viridis_c(option = "plasma", trans = "sqrt")
+
+
+
+ggplot(data = merge( x = world, y = andamenti_compless_carni_per_nazione, by="iso_a3", all.x = T) ) +
+    geom_sf(aes(fill = values)) + 
+    xlab("Longitude") + ylab("Latitude") +
+    ggtitle("World map", subtitle = paste0("(",  length(unique(world$NAME)), " countries)"))
+
+
+```
+
+Dal seguente grafico vediamo che la Cina è la nazione che consuma più carni, ma sappiamo al contempo che è anche una delle nazioni più popolose della terra, quindi ci chiediamo se è proporzionato alla popolazione.
 
 
 Mettiamo a confronto la crescita della popolazione con la crescita dei consumi di carne
