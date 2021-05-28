@@ -57,7 +57,7 @@ Notiamo in tutti i grafici il cosumo di carne è aumentato in modo sensibile in 
   (grafico nazioni x consumo di carne)**
   Dai precedenti grafici abbiamo visto la crescita dei consumi di carne a livello globale, proviamo a visualizzare quali sono effettivamente i   paesi che oggi giorno consumano più carne
   
-  ![Mappa dei consumi di carni - Globe](imgs/cons_carn_world.png)
+  ![Mappa dei consumi di carni - Globe](imgs/animate_andamenti_compl_carni.gif)
 
 **La crescita del consumo di carne è cresciuto in rapporto alla popolazione? **
 

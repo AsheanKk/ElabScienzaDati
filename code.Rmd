@@ -17,12 +17,17 @@ Cominciamo le nostre analisi raccolgiendo i dati, importiamo i dati dai file csv
 
 ```{r}
 library(readr)
+library(gifski)
+library(png)
 library(dplyr)
 library(ggplot2)
 library(ggpubr)
 library(tidyr)
+library(gganimate)
 theme_set(theme_bw())
+library(wesanderson)
 library("sf")
+library(transformr)
 
 prezzi_carne_dt = read_csv("Meat_prices.csv")
 prezzi_carne_dt
@@ -209,10 +214,17 @@ andamenti_compless_carni =
   group_by(Item,`Item Code`, year)%>%
    summarize_if(is.numeric, sum, na.rm = TRUE)
  
+#View(andamenti_compless_carni[-(1)])
 
-ggplot(data = andamenti_compless_carni)+
-  geom_line(aes(x = year, y = values, group = `Item Code`,  colour = `Item`), size = 1)+
-  geom_point(aes(x = year, y = values, group = `Item Code`, colour = `Item`), size = 1.5)
+ggplot(data = (andamenti_compless_carni))+
+     geom_line(aes(x = year, y = values, group = `Item Code`,  colour = `Item`), size = 1)+
+     geom_point(aes(x = year, y = values, group = `Item Code`, colour = `Item`), size = 4, alpha = 0.75)+
+     ggtitle("Consumi delle varie carni a livello mondiali") +
+     ylab("Consumo in tonnellata") +
+     transition_reveal(year)
+
+anim_save("animate_andamenti_compl_carni.gif")
+
 
 ```
 
@@ -269,10 +281,9 @@ ggplot(data = world) +
 
 ggplot(data = merge( x = world, y = andamenti_compless_carni_per_nazione, by="iso_a3", all.x = T) ) +
     geom_sf(aes(fill = values)) + 
+    scale_fill_viridis_c(trans = "sqrt",na.value="gray99")+
     xlab("Longitude") + ylab("Latitude") +
-    ggtitle("World map", subtitle = paste0("(",  length(unique(world$NAME)), " countries)"))
-
-
+    ggtitle("World map") 
 ```
 
 Dal seguente grafico vediamo che la Cina è la nazione che consuma più carni, ma sappiamo al contempo che è anche una delle nazioni più popolose della terra, quindi ci chiediamo se è proporzionato alla popolazione.
@@ -281,13 +292,31 @@ Dal seguente grafico vediamo che la Cina è la nazione che consuma più carni, m
 Mettiamo a confronto la crescita della popolazione con la crescita dei consumi di carne
 ```{r}
 
-rapp_cons_pop<- merge(crescita_pop, andamenti_compless_carni, by = "year")%>%
-  mutate(rapp = values/population)
+
 
 ggplot(data = rapp_cons_pop)+
  # geom_line(aes(x = year, y = values, group = `Item Code`,  colour = `Item`), size = 1)+
   geom_line(aes(x = year, y = rapp,  group = `Item Code`,  colour = `Item`), size = 1)
   
+andamenti_compless_carni_iso =  
+  
+  pivot_longer(data = consumi_totali_carni, cols = starts_with("Y"),  names_to = "year",
+   values_to = "values",
+   values_drop_na = TRUE)%>% 
+   mutate(year = as.numeric( sub("Y", "", year, fixed = TRUE)))%>%
+  group_by(iso_a3,Item,`Item Code`, year)%>%
+   summarize_if(is.numeric, sum, na.rm = TRUE)
+
+rapp_cons_pop<- merge(crescita_pop, andamenti_compless_carni_iso, by = "year")%>%
+  mutate(rapp = values/population)
+
+#fin_cos<-  merge(crescita_pop, andamenti_compless_carni_iso, by = "year")
+
+ggplot(data = merge( x = world, y = rapp_cons_pop, by="iso_a3", all.x = T) ) +
+    geom_sf(aes(fill = rapp)) + 
+    scale_fill_viridis_c(trans = "sqrt",na.value="gray99")+
+    xlab("Longitude") + ylab("Latitude") +
+    ggtitle("World map")
 
 ```
 
