@@ -1,13 +1,6 @@
----
-title: "Code_elab"
-author: "AsheanAbeysinghe"
-date: "8/5/2021"
-output: html_document
----
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
+
 
 ## Accumulazione dei dati
 
@@ -32,7 +25,7 @@ library(transformr)
 prezzi_carne_dt = read_csv("Meat_prices.csv")
 prezzi_carne_dt
 
-emissioni_gaserra_dt = read_csv("owid-co2-data.csv")
+emissioni_gaserra_dt = read_csv("NFA 2018.csv")
 emissioni_gaserra_dt
 
 Food_America_Organization_dt = read_csv("FAO.csv")
@@ -40,6 +33,8 @@ Food_America_Organization_dt
 
 MPDW_6018_dt = read_csv("migration_population.csv")
 MPDW_6018_dt
+
+
 ```
 
 
@@ -241,6 +236,10 @@ crescita_pop =  MPDW_6018_dt %>%
 ggplot(data = crescita_pop)+
   geom_line(aes(x = year, y = population, colour = "Popolazione Mondiale"), size = 1)+
   geom_point(aes(x = year, y = population,  colour = "Popolazione Mondiale"), size = 1.5)
+
+populationpercountry <- MPDW_6018_dt %>%
+  select("iso3c", "year","population")%>%
+  filter(year == "2014")
 ```
 
 
@@ -275,8 +274,9 @@ andamenti_compless_carni_per_nazione
 
 ggplot(data = world) +
     geom_sf(aes(fill = pop_est)) +
-    scale_fill_viridis_c(option = "plasma", trans = "sqrt")
-
+    scale_fill_viridis_c(option = "plasma", trans = "sqrt")+
+    xlab("Longitude") + ylab("Latitude") +
+    ggtitle("Popolazione")
 
 
 ggplot(data = merge( x = world, y = andamenti_compless_carni_per_nazione, by="iso_a3", all.x = T) ) +
@@ -293,10 +293,6 @@ Mettiamo a confronto la crescita della popolazione con la crescita dei consumi d
 ```{r}
 
 
-
-ggplot(data = rapp_cons_pop)+
- # geom_line(aes(x = year, y = values, group = `Item Code`,  colour = `Item`), size = 1)+
-  geom_line(aes(x = year, y = rapp,  group = `Item Code`,  colour = `Item`), size = 1)
   
 andamenti_compless_carni_iso =  
   
@@ -320,4 +316,68 @@ ggplot(data = merge( x = world, y = rapp_cons_pop, by="iso_a3", all.x = T) ) +
 
 ```
 
+Vediamo che gli USA sono gli stati con il maggior consumo di carne per persona, nonostante la popolazione sia quasi la metà di quella Cinese. 
 
+Ci chiediamo dunque, in rapporto alle emissioni di gas serra, come si comportano le varie nazioni? 
+Analizziamo prima di impronta ecologica (eco footprint):
+L’impronta ecologica è un indicatore che misura il consumo da parte degli esseri umani delle risorse naturali che produce la Terra, Nello specifico, l’impronta ecologica misura in ettari le aree biologiche produttive del pianeta Terra, compresi i mari, necessarie per rigenerare le risorse consumate dall’uomo.
+In poche parole, l’impronta ecologica ci dice di quanti pianeta Terra abbiamo bisogno per conservare l’attuale consumo di risorse naturali.
+Allo stato attuale, abbiamo bisogno di poco più di 1,7 “Pianeti Terra”.
+
+
+```{r}
+
+world_total_footprint <- emissioni_gaserra_dt %>%
+  select("country", "year","total")%>%
+  group_by(year) %>%
+  summarize_if(is.numeric, sum, na.rm = TRUE)
+  
+ggplot(data = (world_total_footprint))+
+     geom_line(aes(x = year, y = total), size = 1)+
+     geom_point(aes(x = year, y = total), size = 4, alpha = 0.75)+
+     ggtitle("Impronta Ecologica Mondiale dal 1960 al 2014") +
+     ylab("Consumo in tonnellata") +
+     transition_reveal(year)
+
+anim_save("imgs/world_total_footprint.gif")
+
+                
+world_grazing_footprint <- emissioni_gaserra_dt %>%
+  select("country", "year","grazing_land")%>%
+  group_by(year) %>%
+  summarize_if(is.numeric, sum, na.rm = TRUE)
+  
+ggplot(data = (world_grazing_footprint))+
+     geom_line(aes(x = year, y = grazing_land), size = 1)+
+     geom_point(aes(x = year, y = grazing_land), size = 4, alpha = 0.75)+
+     ggtitle("Impronta Ecologica dei pascoli dal 1960 al 2014") +
+     ylab("Consumo in tonnellata") +
+     transition_reveal(year)
+
+anim_save("imgs/world_grazing_footprint.gif")
+                        
+
+```
+
+```{r}
+grazing_foot_2014 <- na.omit(emissioni_gaserra_dt) %>%
+  filter(year == "2014", record == "BiocapPerCap") %>%
+  mutate( rapp = grazing_land / population, na.rm = T)
+
+
+
+
+
+
+  
+
+#fin_cos<-  merge(crescita_pop, andamenti_compless_carni_iso, by = "year")
+
+ggplot(data = merge( x = world, y = grazing_foot_2014, by.x="iso_a3",by.y = "ISO alpha-3 code", all.x = T) ) +
+    geom_sf(aes(fill = rapp)) + 
+    scale_fill_viridis_c(trans = "sqrt",na.value="gray99")+
+    xlab("Longitude") + ylab("Latitude") +
+    ggtitle("Impronta ecologica dei pascoli in rapporto alla popolazione ")
+                        
+
+```

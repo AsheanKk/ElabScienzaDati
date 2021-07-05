@@ -1,12 +1,22 @@
+
 ---
-title: "Progetto Elaborazione Scienza Dati"
-subtitle: "di Ashean Abeysinghe"
-output:
-  html_document:
-    theme: readable
+title: "Progetto Fondamenti Scienza Dati"
+author: "di Ashean Abeysinghe"
+output: 
+  ioslides_presentation:
+    css: style.css
+    incremental: yes
+editor_options: 
+  chunk_output_type: inline
+
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache = TRUE, message = FALSE, warning = FALSE)
+```
 
+
+## Dataset 
 Nel seguente progetto procederemo con l'analisi di dati raccolti sul consumo di carne,
 l'inquinamento e la sanità, quanto quel che mangiamo affligge la nostra salute e quella del nostro pianeta? 
 
@@ -17,7 +27,7 @@ l'inquinamento e la sanità, quanto quel che mangiamo affligge la nostra salute 
 3. "[Greenhouse gas emissions](https://github.com/owid/co2-data/blob/master/owid-co2-data.csv)".
 4. "[Migration & Population Density WorldBank 1960-2018](https://www.kaggle.com/eliasdabbas/migration-data-worldbank-1960-2018?select=migration_population.csv)."
 
-**Domande iniziali**
+## Domande iniziali
 Partiamo con un paio di domande semplici:
 
   1. quanta carne mangiamo nelle varie nazioni?
@@ -39,7 +49,7 @@ Partiamo con un paio di domande semplici:
   
   
 
-**Studiamo i consumi delle seguenti carni .**
+## Studiamo i consumi delle seguenti carni .
 
 Nei seguenti grafici vederemo l' andamento del consumo delle carni più comuni dal 1961 al 2013
 
@@ -49,22 +59,28 @@ Nei seguenti grafici vederemo l' andamento del consumo delle carni più comuni d
 ![Consumi di pollame](imgs/consumi_pollame_mondiali_grph.png)
 ![Consumi di altre carni](imgs/consumi_altre_carni_mondiali_grph.png)
 
+## Un quadro generale
 Notiamo in tutti i grafici il cosumo di carne è aumentato in modo sensibile in tutto il mondo. 
 ** Quando abbiamo cominciato a mangiare questa quantità di carne?**
 
+![Mappa dei consumi di carni - Globe](imgs/animate_andamenti_compl_carni.gif)
+
 ![Andamento dei consumi di carne](imgs/andamento_compl_carni_grph.png)
-**quanta carne mangiamo nelle varie nazioni?
-  (grafico nazioni x consumo di carne)**
-  Dai precedenti grafici abbiamo visto la crescita dei consumi di carne a livello globale, proviamo a visualizzare quali sono effettivamente i   paesi che oggi giorno consumano più carne
-  
-  ![Mappa dei consumi di carni - Globe](imgs/animate_andamenti_compl_carni.gif)
+
+>Vediamo che il rapporto tra la popolazione mondiale di alcune carni come quella ovina sono rimaste più o meno costanti, inaspettatamente anche **il rapporto tra manzo e poplazione è rimasta più o meno costante**, mentre il consumo di **carne suina e pollame ha tenuto un andamento crescente**.
+
+
+Notiamo in tutti i grafici il cosumo di carne è aumentato in modo sensibile in tutto il mondo.
+ 
 
 **La crescita del consumo di carne è cresciuto in rapporto alla popolazione? **
 
-![Consumi in rapposto alla popolazione](imgs/rapp_cons_pop_grph.png)
+![Consumi in rapporto alla popolazione](imgs/rapp_cons_pop_grph.png)
 
->Vediamo che il rapporto tra la popolazione mondiale di alcune carni come quella ovina sono rimaste più o meno costani, inaspettatamente anche **il rapporto tra manzo e poplazione è rimasta più o meno costante**, mentre il consumo di **carne suina e pollame ha tenuto un andamento crescente**.
+## Quanta carne consumiamo nelle varie nazioni?
 
+Dai precedenti grafici abbiamo visto la crescita dei consumi di carne a livello globale, proviamo a visualizzare quali sono effettivamente i   paesi che oggi giorno consumano più carne
 
-Notiamo in tutti i grafici il cosumo di carne è aumentato in modo sensibile in tutto il mondo. 
-
+ ![Popolazione ](imgs/map_world_pop.png)
+ ![ Quali sono le nazioni che consumano più carne? ](imgs/map_world_cons_tot.png)
+ ![ Ma in rapporto alla popolazione? ](imgs/map_world_cons.png)
