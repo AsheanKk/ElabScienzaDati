@@ -37,7 +37,7 @@ Nel seguente progetto procederemo con l'analisi di dati raccolti sulla produzion
 
   
 
-## Studiamo i produzioni delle seguenti carni .
+## Studiamo le produzioni delle seguenti carni .
 
 Nei seguenti grafici vederemo l' andamento della produzione delle carni più comuni dal 1961 al 2013
 
@@ -56,10 +56,10 @@ Notiamo che la produzione è sensibilmente in aumento in tutto il mondo.
 ![Andamento delle produzioni di carne](imgs/andamento_compl_carni_grph.png)
 
 
-Notiamo in tutti i grafici il cosumo di carne è aumentato in modo sensibile in tutto il mondo.
+Notiamo in tutti i grafici che la produzione di carne è aumentata in modo sensibile in tutto il mondo.
  
 
-**La crescita del produzione di carne è cresciuto in rapporto alla popolazione? **
+**La crescita della produzione di carne è cresciuta in rapporto alla popolazione? **
 
 ![produzioni in rapporto alla popolazione](imgs/rapp_cons_pop_grph.png)
 Vediamo che il rapporto tra la popolazione mondiale di alcune carni come quella ovina sono rimaste più o meno costanti,tra queste, inaspettatamente, anche **il rapporto tra manzo e poplazione è rimasta più o meno costante**, mentre la produzione di **carne suina e pollame ha tenuto un andamento crescente**
@@ -89,7 +89,7 @@ Creiamo un grafico dove mettiamo in rapporto il consumo di carne a livello mondi
 ## Rispondiamo alla 4° domanda
    "Consumiamo veramente la carne che produciamo?"
   
-   Per rispondere effettivamente a questa domanda dobbiamo mettere a confronto le quantità di carne prodotta con le quantità di carne consumata.
+   Per rispondere effettivamente a questa domanda dobbiamo mettere a confronto le quantità di carne prodotta con le quantità di carne consumata, sfruttiamo la regressione lineare semplice visualizzandola su uno scatterplot.
    
    ![ Carne prodotta/consumata ](imgs/scatter.png)
    

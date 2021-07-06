@@ -23,6 +23,9 @@ library("sf")
 library(transformr)
 ##library(Rcmdr)
 library(rgl)
+library(webshot)
+library(magik)
+library(ploty)
 
 prezzi_carne_dt = read_csv("Meat_prices.csv")
 prezzi_carne_dt
@@ -434,12 +437,14 @@ ggplot(data = merge( x = world, y = data , by.x="iso_a3",by.y = "LOCATION", all.
 
 
   
-ggplot(data = merge( x = world, y = data , by.x="iso_a3",by.y = "LOCATION", all.x = T) %>% mutate(rapp = Value/pop_est) ) +
+ggplot(data = merge( x = world, y = data , by.x="iso_a3",by.y = "LOCATION", all.x = T) %>% mutate(rapp = Value*1000/pop_est) ) +
     geom_sf(aes(fill = rapp)) + 
      scale_fill_gradient2(low = "purple", high = "blue", midpoint = .005,trans = "sqrt",na.value="gray99")+
     xlab("Longitude") + ylab("Latitude") +
     ggtitle("Consumo di carne in rapporto alla popolazione")
 rapp_pop_cons_dt
+
+
 
 ```
 
@@ -450,7 +455,7 @@ cons_prod_dt
 
 
 
-plot3d(cons_prod_dt$values, cons_prod_dt$Value, cons_prod_dt$TIME, col="red", size=3)
+)
 
 ggplot(data = cons_prod_dt, mapping = aes(x = values, y = Value)) +
   geom_point()
@@ -466,4 +471,30 @@ ggscatter(cons_prod_dt, x = "values", y = "Value",
  
 
 ```
+```{r} 
+zzze =  
+  
+  pivot_longer(data = produzioni_totali_carni, cols = starts_with("Y"),  names_to = "year",
+   values_to = "values",
+   values_drop_na = TRUE)%>% 
+   mutate(year = as.numeric( sub("Y", "", year, fixed = TRUE)))%>%
+  group_by(year)%>%
+   summarize_if(is.numeric, sum, na.rm = TRUE)
 
+zzzr <- mcww_dt %>% 
+        group_by(TIME)%>%
+        summarize_if(is.numeric, sum, na.rm = TRUE)
+
+doneit <- merge(x = zzze , y = zzzr, by.x = "year", by.y =  "TIME")
+
+
+plot3d(doneit$values, doneit$Value, doneit$TIME, col="steelblue", size=10, alpha = 0.75, pch = 16, 
+              grid=TRUE, box=FALSE,xlab = "Consumo",
+              ylab = "Produzione",
+              zlab = "Anno")
+# We can indicate the axis and the rotation velocity
+play3d( spin3d( axis = c(0, 0, 1), rpm = 5), duration = 20 )
+
+# Save like gif
+
+```
