@@ -21,6 +21,8 @@ theme_set(theme_bw())
 library(wesanderson)
 library("sf")
 library(transformr)
+##library(Rcmdr)
+library(rgl)
 
 prezzi_carne_dt = read_csv("Meat_prices.csv")
 prezzi_carne_dt
@@ -34,6 +36,8 @@ Food_America_Organization_dt
 MPDW_6018_dt = read_csv("migration_population.csv")
 MPDW_6018_dt
 
+mcww_dt = read_csv("meat_consumption_worldwide.csv")
+mcww_dt
 
 ```
 
@@ -44,50 +48,50 @@ Una volta preparati i vari dataset possiamo procedere con un ordinamento general
 generalmente i dataset usati sono già ordinati, consistenti ed uniformi.
 
 ##Quanta carne manfiamo nelle varie nazioni?
-Creaimo un dataset da dataset met_consumption_worldwide mettento in rapporto la colonna relativa alla nazione, al consumo di carne e l' anno 2020.
+Creaimo un dataset da dataset met_consumption_worldwide mettento in rapporto la colonna relativa alla nazione, al produzione di carne e l' anno 2020.
 
 <!-- # -->
 <!-- #```{r pressure, echo=FALSE} -->
 
 
-<!-- #consumi_manzo_2020 = consumi_carne_dt %>% -->
+<!-- #produzioni_manzo_2020 = produzioni_carne_dt %>% -->
 <!-- #  filter( TIME == 2020 , SUBJECT == "BEEF") -->
 <!-- # -->
-<!-- #media_consumi_manzo =  mean(dplyr::pull(consumi_manzo_2020, Value)) -->
+<!-- #media_produzioni_manzo =  mean(dplyr::pull(produzioni_manzo_2020, Value)) -->
 <!-- # -->
-<!-- #consumi_manzo_magg_2020 = consumi_manzo_2020 %>% -->
-<!-- #  filter (Value > media_consumi_manzo) -->
+<!-- #produzioni_manzo_magg_2020 = produzioni_manzo_2020 %>% -->
+<!-- #  filter (Value > media_produzioni_manzo) -->
 
 
-<!--   ggplot(data = consumi_manzo_magg_2020, aes(x=LOCATION, y=Value, color=SUBJECT)) + -->
+<!--   ggplot(data = produzioni_manzo_magg_2020, aes(x=LOCATION, y=Value, color=SUBJECT)) + -->
 <!--   geom_bar(stat="identity") -->
 <!-- ``` -->
 <!-- ```{r pressure, echo=FALSE} -->
 
 
-<!-- consumi_ovina_2020 = consumi_carne_dt %>% -->
+<!-- produzioni_ovina_2020 = produzioni_carne_dt %>% -->
 <!--   filter( TIME == 2020 , SUBJECT == "SHEEP") -->
 
-<!-- media_consumi_ovini =  mean(dplyr::pull(consumi_ovina_2020, Value)) -->
+<!-- media_produzioni_ovini =  mean(dplyr::pull(produzioni_ovina_2020, Value)) -->
 
-<!-- consumi_ovini_magg_2020 = consumi_ovina_2020 %>% -->
-<!--   filter (Value > media_consumi_ovini) -->
+<!-- produzioni_ovini_magg_2020 = produzioni_ovina_2020 %>% -->
+<!--   filter (Value > media_produzioni_ovini) -->
 
-<!-- ggplot(data = consumi_ovini_magg_2020, aes(x=LOCATION, y=Value, color=SUBJECT)) + -->
+<!-- ggplot(data = produzioni_ovini_magg_2020, aes(x=LOCATION, y=Value, color=SUBJECT)) + -->
 <!--   geom_bar(stat="identity") -->
 <!-- ``` -->
 <!-- ```{r pressure, echo=FALSE} -->
 
 
-<!-- consumi_pollame_2020 = consumi_carne_dt %>% -->
+<!-- produzioni_pollame_2020 = produzioni_carne_dt %>% -->
 <!--   filter( TIME == 2020 , SUBJECT == "POULTRY") -->
 
-<!-- media_consumi_pollame =  mean(dplyr::pull(consumi_pollame_2020, Value)) -->
+<!-- media_produzioni_pollame =  mean(dplyr::pull(produzioni_pollame_2020, Value)) -->
 
-<!-- consumi_pollame_magg_2020 = consumi_pollame_2020 %>% -->
-<!--   filter (Value > media_consumi_pollame) -->
+<!-- produzioni_pollame_magg_2020 = produzioni_pollame_2020 %>% -->
+<!--   filter (Value > media_produzioni_pollame) -->
 
-<!-- ggplot(data = consumi_pollame_magg_2020, aes(x=LOCATION, y=Value, color=SUBJECT)) + -->
+<!-- ggplot(data = produzioni_pollame_magg_2020, aes(x=LOCATION, y=Value, color=SUBJECT)) + -->
 <!--   geom_bar(stat="identity") -->
 <!-- ``` -->
 
@@ -108,23 +112,23 @@ i codici dei prodotti interessati sono (item code):
  
 ```{r}
  
- consumi_totali_carni = Food_America_Organization_dt %>%
+ produzioni_totali_carni = Food_America_Organization_dt %>%
                         select(`Area Abbreviation`,"Item","Item Code", starts_with("Y"))  %>% 
                         rename(  "iso_a3" =`Area Abbreviation`) %>%
                         filter(`Item Code` %in% c("2731","2732","2733","2734","2735"))
                        # replace(NA,0) %>%
-                        #mutate(val_sum = colSums(consumi_totali_carni[,-1])) %>%
+                        #mutate(val_sum = colSums(produzioni_totali_carni[,-1])) %>%
                         
                 
   
 
-consumi_totali_carni[complete.cases(consumi_totali_carni), ] %>%
+produzioni_totali_carni[complete.cases(produzioni_totali_carni), ] %>%
                        summarize_if(is.numeric, sum, na.rm = TRUE)
 
-consumi_totali_carni
+produzioni_totali_carni
 
 #
-                        #aggregate(consumi_totali_carni[-1], consumi_totali_carni["Item Code"], sum, na.rm=TRUE)
+                        #aggregate(produzioni_totali_carni[-1], produzioni_totali_carni["Item Code"], sum, na.rm=TRUE)
  
  
  
@@ -140,16 +144,16 @@ Dichiariamo una funzione che ritorni un grafico geompoint in base al codice del 
 
 ```{r}
 
-consumi_mondiali<-function(code, title){
-  consumi_totali = consumi_totali_carni%>%
+produzioni_mondiali<-function(code, title){
+  produzioni_totali = produzioni_totali_carni%>%
   filter(`Item Code` == code)%>%
    summarize_if(is.numeric, sum, na.rm = TRUE)
 
 
-consumi_totali
+produzioni_totali
   
-somma = as.numeric(consumi_totali[,-1], fixed = TRUE, na.rm = T)
-anni = as.numeric( sub("Y", "", (colnames(consumi_totali))[-(1)], fixed = TRUE))
+somma = as.numeric(produzioni_totali[,-1], fixed = TRUE, na.rm = T)
+anni = as.numeric( sub("Y", "", (colnames(produzioni_totali))[-(1)], fixed = TRUE))
 
 new_obj_for_tot = data.frame(anni,somma)[-1,]
 
@@ -174,25 +178,25 @@ new_obj_for_tot = data.frame(anni,somma)[-1,]
                
 ```
 
-**Consumo mondiale di manzo**
+**produzione mondiale di manzo**
 ```{r}
-consumi_mondiali("2731","Consumi Mondiali di Manzo")
+produzioni_mondiali("2731","produzioni Mondiali di Manzo")
 ```
-**Consumo mondiale di carne ovina**
+**produzione mondiale di carne ovina**
 ```{r}
-consumi_mondiali("2732","Consumi Mondiali di Carne Ovina")
+produzioni_mondiali("2732","produzioni Mondiali di Carne Ovina")
 ```
-**Consumo mondiale di Carne Suina**
+**produzione mondiale di Carne Suina**
 ```{r}
-consumi_mondiali("2733","Consumi Mondiali di Carne Suina")
+produzioni_mondiali("2733","produzioni Mondiali di Carne Suina")
 ```
-**Consumo mondiale di pollame**
+**produzione mondiale di pollame**
 ```{r}
-consumi_mondiali("2734","Consumi Mondiali di Pollame")
+produzioni_mondiali("2734","produzioni Mondiali di Pollame")
 ```
-**Consumo mondiale di Carni**
+**produzione mondiale di Carni**
 ```{r}
-consumi_mondiali("2735","Consumi Mondiali di Carni")
+produzioni_mondiali("2735","produzioni Mondiali di Carni")
 ```
 
 Provo dunque a mettere a confronto tutti i dati su un unico grafico, immaginiamo di sommare tutti i valori 
@@ -202,7 +206,7 @@ e vederli in modo simile ai grafici precedenti.
 
 andamenti_compless_carni =  
   
-  pivot_longer(data = consumi_totali_carni, cols = starts_with("Y"),  names_to = "year",
+  pivot_longer(data = produzioni_totali_carni, cols = starts_with("Y"),  names_to = "year",
    values_to = "values",
    values_drop_na = TRUE)%>% 
    mutate(year = as.numeric( sub("Y", "", year, fixed = TRUE)))%>%
@@ -211,11 +215,12 @@ andamenti_compless_carni =
  
 #View(andamenti_compless_carni[-(1)])
 
+
 ggplot(data = (andamenti_compless_carni))+
      geom_line(aes(x = year, y = values, group = `Item Code`,  colour = `Item`), size = 1)+
      geom_point(aes(x = year, y = values, group = `Item Code`, colour = `Item`), size = 4, alpha = 0.75)+
-     ggtitle("Consumi delle varie carni a livello mondiali") +
-     ylab("Consumo in tonnellata") +
+     ggtitle("produzioni delle varie carni a livello mondiali") +
+     ylab("produzione in tonnellata") +
      transition_reveal(year)
 
 anim_save("animate_andamenti_compl_carni.gif")
@@ -223,7 +228,7 @@ anim_save("animate_andamenti_compl_carni.gif")
 
 ```
 
-Mettiamo a confronto la crescita della popolazione mondiale ed il relativo consumo di carne, iniziamo dunque col prendere i dati da MPDW
+Mettiamo a confronto la crescita della popolazione mondiale ed il relativo produzione di carne, iniziamo dunque col prendere i dati da MPDW
 
 ```{r}
 crescita_pop =  MPDW_6018_dt %>%
@@ -243,7 +248,7 @@ populationpercountry <- MPDW_6018_dt %>%
 ```
 
 
-Mappa con i consumi di carne globali
+Mappa con i produzioni di carne globali
 ```{r}
 library("rnaturalearth")
 library("rnaturalearthdata")
@@ -253,7 +258,7 @@ world
 
 andamenti_compless_carni_per_nazione =  
   
-  pivot_longer(data = consumi_totali_carni, cols = starts_with("Y"),  names_to = "year",
+  pivot_longer(data = produzioni_totali_carni, cols = starts_with("Y"),  names_to = "year",
    values_to = "values",
    values_drop_na = TRUE)%>% 
    mutate(year = as.numeric( sub("Y", "", year, fixed = TRUE)))%>%
@@ -267,9 +272,9 @@ andamenti_compless_carni_per_nazione =
 andamenti_compless_carni_per_nazione
 
 ##Abbiamo l' oggetto world dobbiamo fare un merge da i datset
-# world e consumi di carne usando 
+# world e produzioni di carne usando 
 # 
-# Prima però dobbiamo creare un dataset che ha la somma di tutti i consumi di carne dell' ultimo anno per ogni nazione
+# Prima però dobbiamo creare un dataset che ha la somma di tutti i produzioni di carne dell' ultimo anno per ogni nazione
 
 
 ggplot(data = world) +
@@ -283,20 +288,20 @@ ggplot(data = merge( x = world, y = andamenti_compless_carni_per_nazione, by="is
     geom_sf(aes(fill = values)) + 
     scale_fill_viridis_c(trans = "sqrt",na.value="gray99")+
     xlab("Longitude") + ylab("Latitude") +
-    ggtitle("World map") 
+    ggtitle("Produzione di Carne") 
 ```
 
 Dal seguente grafico vediamo che la Cina è la nazione che consuma più carni, ma sappiamo al contempo che è anche una delle nazioni più popolose della terra, quindi ci chiediamo se è proporzionato alla popolazione.
 
 
-Mettiamo a confronto la crescita della popolazione con la crescita dei consumi di carne
+Mettiamo a confronto la crescita della popolazione con la crescita dei produzioni di carne
 ```{r}
 
 
   
 andamenti_compless_carni_iso =  
   
-  pivot_longer(data = consumi_totali_carni, cols = starts_with("Y"),  names_to = "year",
+  pivot_longer(data = produzioni_totali_carni, cols = starts_with("Y"),  names_to = "year",
    values_to = "values",
    values_drop_na = TRUE)%>% 
    mutate(year = as.numeric( sub("Y", "", year, fixed = TRUE)))%>%
@@ -312,20 +317,33 @@ ggplot(data = merge( x = world, y = rapp_cons_pop, by="iso_a3", all.x = T) ) +
     geom_sf(aes(fill = rapp)) + 
     scale_fill_viridis_c(trans = "sqrt",na.value="gray99")+
     xlab("Longitude") + ylab("Latitude") +
-    ggtitle("World map")
+    ggtitle("Produzione di carne in rapporto alla popolazione")
+
+rapp_pop_dt <- (merge(crescita_pop, andamenti_compless_carni, by = "year")%>%
+  mutate(rapp = values/population))
+
+ggplot(rapp_pop_dt) +
+     geom_line(aes(x = year, y = rapp, group = `Item Code`,  colour = `Item`,cor.coef = TRUE, cor.method = "pearson"), size = 1)+
+     ggtitle("produzioni delle varie carni a livello mondiale") +
+     ylab("Produzione in tonnellate")
+
+
 
 ```
 
-Vediamo che gli USA sono gli stati con il maggior consumo di carne per persona, nonostante la popolazione sia quasi la metà di quella Cinese. 
+Vediamo che gli USA sono gli stati con il maggior produzione di carne per persona, nonostante la popolazione sia quasi la metà di quella Cinese. 
 
 Ci chiediamo dunque, in rapporto alle emissioni di gas serra, come si comportano le varie nazioni? 
 Analizziamo prima di impronta ecologica (eco footprint):
-L’impronta ecologica è un indicatore che misura il consumo da parte degli esseri umani delle risorse naturali che produce la Terra, Nello specifico, l’impronta ecologica misura in ettari le aree biologiche produttive del pianeta Terra, compresi i mari, necessarie per rigenerare le risorse consumate dall’uomo.
-In poche parole, l’impronta ecologica ci dice di quanti pianeta Terra abbiamo bisogno per conservare l’attuale consumo di risorse naturali.
+L’impronta ecologica è un indicatore che misura il produzione da parte degli esseri umani delle risorse naturali che produce la Terra, Nello specifico, l’impronta ecologica misura in ettari le aree biologiche produttive del pianeta Terra, compresi i mari, necessarie per rigenerare le risorse consumate dall’uomo.
+In poche parole, l’impronta ecologica ci dice di quanti pianeta Terra abbiamo bisogno per conservare l’attuale produzione di risorse naturali.
 Allo stato attuale, abbiamo bisogno di poco più di 1,7 “Pianeti Terra”.
 
 
 ```{r}
+res <- cor(rapp_cons_pop$values, rapp_cons_pop$population, 
+                    method = "pearson")
+res
 
 world_total_footprint <- emissioni_gaserra_dt %>%
   select("country", "year","total")%>%
@@ -336,10 +354,10 @@ ggplot(data = (world_total_footprint))+
      geom_line(aes(x = year, y = total), size = 1)+
      geom_point(aes(x = year, y = total), size = 4, alpha = 0.75)+
      ggtitle("Impronta Ecologica Mondiale dal 1960 al 2014") +
-     ylab("Consumo in tonnellata") +
+     ylab("produzione in tonnellata") +
      transition_reveal(year)
 
-anim_save("imgs/world_total_footprint.gif")
+anim_save("docs/imgs/world_total_footprint.gif")
 
                 
 world_grazing_footprint <- emissioni_gaserra_dt %>%
@@ -351,10 +369,10 @@ ggplot(data = (world_grazing_footprint))+
      geom_line(aes(x = year, y = grazing_land), size = 1)+
      geom_point(aes(x = year, y = grazing_land), size = 4, alpha = 0.75)+
      ggtitle("Impronta Ecologica dei pascoli dal 1960 al 2014") +
-     ylab("Consumo in tonnellata") +
+     ylab("produzione in tonnellata") +
      transition_reveal(year)
 
-anim_save("imgs/world_grazing_footprint.gif")
+anim_save("docs/imgs/world_grazing_footprint.gif")
                         
 
 ```
@@ -381,3 +399,71 @@ ggplot(data = merge( x = world, y = grazing_foot_2014, by.x="iso_a3",by.y = "ISO
                         
 
 ```
+
+```{r}
+andamenti_comples_consumi <-   mcww_dt %>%
+  group_by(SUBJECT,TIME)%>%
+   summarize_if(is.numeric, sum, na.rm = TRUE)
+                        
+ggplot(data = (andamenti_comples_consumi))+
+     geom_line(aes(x = TIME, y = Value, group = SUBJECT,  colour = SUBJECT), size = 1)+
+     geom_point(aes(x = TIME, y = Value, group = SUBJECT,  colour = SUBJECT), size = 4, alpha = 0.75)+
+     ggtitle("Consumi delle varie carni a livello mondiali") +
+     ylab("Consumo in tonnellata") +
+     transition_reveal(TIME)
+
+anim_save("docs/imgs/andamenti_comples_consumi.gif")
+
+ggplot(andamenti_comples_consumi) +
+     geom_line(aes(x = TIME, y = Value, group = SUBJECT,  colour = SUBJECT), size = 1)+
+     ggtitle("Consumo delle varie carni a livello mondiale") +
+     ylab("Consumo in tonnellata")
+
+data <- mcww_dt %>% filter (TIME == "2013")%>% 
+        group_by(LOCATION,TIME)%>%
+        summarize_if(is.numeric, sum, na.rm = TRUE)
+```
+
+
+```{r}   
+ggplot(data = merge( x = world, y = data , by.x="iso_a3",by.y = "LOCATION", all.x = T) ) +
+    geom_sf(aes(fill = Value)) + 
+     scale_fill_gradient2(low = "pink", high = "red", midpoint = .02,trans = "sqrt",na.value="gray99")+
+    xlab("Longitude") + ylab("Latitude") +
+    ggtitle("Consumo di carne a livello mondiale")
+
+
+  
+ggplot(data = merge( x = world, y = data , by.x="iso_a3",by.y = "LOCATION", all.x = T) %>% mutate(rapp = Value/pop_est) ) +
+    geom_sf(aes(fill = rapp)) + 
+     scale_fill_gradient2(low = "purple", high = "blue", midpoint = .005,trans = "sqrt",na.value="gray99")+
+    xlab("Longitude") + ylab("Latitude") +
+    ggtitle("Consumo di carne in rapporto alla popolazione")
+rapp_pop_cons_dt
+
+```
+
+```{r}   
+cons_prod_dt <- merge(x = andamenti_compless_carni_per_nazione , y = data, by.x = "iso_a3", by.y =  "LOCATION")%>%
+  mutate(values = values )
+cons_prod_dt
+
+
+
+plot3d(cons_prod_dt$values, cons_prod_dt$Value, cons_prod_dt$TIME, col="red", size=3)
+
+ggplot(data = cons_prod_dt, mapping = aes(x = values, y = Value)) +
+  geom_point()
+
+ggplot(data = cons_prod_dt) +
+  geom_point(mapping = aes(x = values, y = Value))
+
+ggscatter(cons_prod_dt, x = "values", y = "Value", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Carne Prodotta", ylab = "Carne Consumata") + 
+  geom_smooth()
+ 
+
+```
+
